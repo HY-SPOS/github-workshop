@@ -19,6 +19,7 @@ const filterBtns = Array.from(document.querySelectorAll('.filter-btn'));
 
 // 目前篩選狀態（預設全部）
 let currentFilter = FILTERS.ALL;
+const FILTER_KEY = 'copilot_todo_filter_v1'; // localStorage key for selected filter
 
 // 取得儲存的清單，若無則回傳空陣列
 function loadTodos(){
@@ -231,10 +232,34 @@ if(window.matchMedia){
 // ---------- 篩選邏輯 ----------
 // 更新目前篩選並重新 render
 function setFilter(filter){
-  currentFilter = filter;
+  // 僅接受合法篩選值，否則回退到 ALL
+  const allowed = [FILTERS.ALL, FILTERS.ACTIVE, FILTERS.COMPLETED];
+  const safe = allowed.includes(filter) ? filter : FILTERS.ALL;
+  currentFilter = safe;
+  // 儲存使用者選擇到 localStorage
+  try{
+    localStorage.setItem(FILTER_KEY, currentFilter);
+  }catch(e){
+    console.error('儲存篩選狀態失敗', e);
+  }
   // 更新按鈕樣式
-  filterBtns.forEach(b => b.classList.toggle('active', b.dataset.filter === filter));
+  filterBtns.forEach(b => b.classList.toggle('active', b.dataset.filter === currentFilter));
   render();
+}
+
+// 嘗試從 localStorage 載入先前的篩選設定
+function applyFilterFromStorage(){
+  try{
+    const saved = localStorage.getItem(FILTER_KEY);
+    const allowed = [FILTERS.ALL, FILTERS.ACTIVE, FILTERS.COMPLETED];
+    if(saved && allowed.includes(saved)){
+      currentFilter = saved;
+      // 更新按鈕樣式
+      filterBtns.forEach(b => b.classList.toggle('active', b.dataset.filter === currentFilter));
+    }
+  }catch(e){
+    console.error('讀取篩選狀態失敗', e);
+  }
 }
 
 // 綁定篩選按鈕事件
@@ -252,6 +277,7 @@ todoInput.addEventListener('keydown', (e) => {
 addBtn.addEventListener('click', addTodoFromInput);
 clearAllBtn.addEventListener('click', clearCompleted);
 
-// 初始化：套用主題並渲染
+// 初始化：套用主題，載入篩選設定，並渲染
 applyThemeFromStorage();
+applyFilterFromStorage();
 render();
