@@ -9,12 +9,23 @@
 <body>
   <main class="container">
     <section class="card">
-      <h1 class="title">待辦清單</h1>
+      <div class="header-row">
+        <h1 class="title">待辦清單</h1>
+        <!-- 主題切換按鈕：顯示圖示與文字 -->
+        <button id="theme-toggle" class="theme-toggle" aria-label="切換深淺模式">🌙 深色模式</button>
+      </div>
 
       <form id="todo-form" class="input-row" onsubmit="return false;">
         <input id="todo-input" type="text" placeholder="輸入待辦事項..." autocomplete="off">
         <button id="add-btn" type="button">新增</button>
       </form>
+
+      <!-- 篩選按鈕：全部 / 未完成 / 已完成 -->
+      <div class="filters" role="tablist" aria-label="篩選待辦">
+        <button class="filter-btn active" data-filter="all">全部</button>
+        <button class="filter-btn" data-filter="active">未完成</button>
+        <button class="filter-btn" data-filter="completed">已完成</button>
+      </div>
 
       <div id="list-wrap">
         <ul id="todo-list" class="todo-list"></ul>

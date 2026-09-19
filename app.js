@@ -2,6 +2,10 @@
 // 使用 localStorage 儲存，頁面重新整理後資料會保留
 
 const STORAGE_KEY = 'copilot_todo_list_v1'; // localStorage key
+const THEME_KEY = 'copilot_todo_theme_v1'; // 主題儲存 key
+
+// 篩選狀態常數
+const FILTERS = { ALL: 'all', ACTIVE: 'active', COMPLETED: 'completed' };
 
 // DOM 元素
 const todoInput = document.getElementById('todo-input');
@@ -10,6 +14,11 @@ const todoListEl = document.getElementById('todo-list');
 const emptyTip = document.getElementById('empty-tip');
 const incompleteCountEl = document.getElementById('incomplete-count');
 const clearAllBtn = document.getElementById('clear-all');
+const themeToggleBtn = document.getElementById('theme-toggle');
+const filterBtns = Array.from(document.querySelectorAll('.filter-btn'));
+
+// 目前篩選狀態（預設全部）
+let currentFilter = FILTERS.ALL;
 
 // 取得儲存的清單，若無則回傳空陣列
 function loadTodos(){
@@ -37,21 +46,40 @@ function createTodo(text){
   };
 }
 
+// 依照 currentFilter 回傳要顯示的清單
+function getVisibleTodos(todos){
+  if(currentFilter === FILTERS.ACTIVE) return todos.filter(t => !t.done);
+  if(currentFilter === FILTERS.COMPLETED) return todos.filter(t => t.done);
+  return todos.slice();
+}
+
 // 渲染清單
 function render(){
   const todos = loadTodos();
+  const visible = getVisibleTodos(todos);
 
   // 清空清單 DOM
   todoListEl.innerHTML = '';
 
-  if(todos.length === 0){
+  // 顯示對應篩選下的空提示文字
+  if(visible.length === 0){
     emptyTip.style.display = 'block';
+    // 根據篩選改變提示文字
+    if(todos.length === 0){
+      emptyTip.textContent = '還沒有任何待辦事項，新增一個吧!';
+    }else if(currentFilter === FILTERS.ACTIVE){
+      emptyTip.textContent = '目前沒有未完成的項目';
+    }else if(currentFilter === FILTERS.COMPLETED){
+      emptyTip.textContent = '目前沒有已完成的項目';
+    }else{
+      emptyTip.textContent = '篩選後沒有項目';
+    }
   }else{
     emptyTip.style.display = 'none';
   }
 
-  // 建立每一項 DOM
-  todos.forEach(todo => {
+  // 建立每一項 DOM（只 render visible）
+  visible.forEach(todo => {
     const li = document.createElement('li');
     li.className = 'todo-item';
     li.dataset.id = todo.id;
@@ -126,7 +154,7 @@ function deleteTodo(id){
   render();
 }
 
-// 更新未完成數字顯示
+// 更新未完成數字顯示（不受篩選影響，顯示整體數量）
 function updateIncompleteCount(){
   const todos = loadTodos();
   const incomplete = todos.filter(t => !t.done).length;
@@ -143,6 +171,77 @@ function clearCompleted(){
   render();
 }
 
+// ---------- 主題支援（淺/深色） ----------
+// 讀取使用者選擇的主題，回傳 'dark' / 'light' / null (null 表示使用系統設定)
+function loadSavedTheme(){
+  try{
+    return localStorage.getItem(THEME_KEY); // 'dark' or 'light' or null
+  }catch(e){
+    return null;
+  }
+}
+
+function saveTheme(theme){
+  try{
+    if(theme === null) localStorage.removeItem(THEME_KEY);
+    else localStorage.setItem(THEME_KEY, theme);
+  }catch(e){
+    console.error('儲存主題失敗', e);
+  }
+}
+
+// 根據設定套用主題：如果 savedTheme 為 null，則遵從系統 prefers-color-scheme
+function applyThemeFromStorage(){
+  const saved = loadSavedTheme();
+  const prefersDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+  const useDark = saved === 'dark' || (saved === null && prefersDark);
+  setDocumentTheme(useDark ? 'dark' : 'light');
+}
+
+function setDocumentTheme(kind){
+  const root = document.documentElement;
+  if(kind === 'dark'){
+    root.classList.add('dark-theme');
+    themeToggleBtn.textContent = '☀️ 淺色模式';
+  }else{
+    root.classList.remove('dark-theme');
+    themeToggleBtn.textContent = '🌙 深色模式';
+  }
+}
+
+// 主題按鈕事件：切換並儲存使用者選擇
+themeToggleBtn.addEventListener('click', () => {
+  const isDark = document.documentElement.classList.contains('dark-theme');
+  const newTheme = isDark ? 'light' : 'dark';
+  setDocumentTheme(newTheme);
+  saveTheme(newTheme);
+});
+
+// 當系統主題變動且使用者未手動選擇時，自動切換
+if(window.matchMedia){
+  const mq = window.matchMedia('(prefers-color-scheme: dark)');
+  mq.addEventListener && mq.addEventListener('change', (e) => {
+    const saved = loadSavedTheme();
+    if(saved === null){
+      setDocumentTheme(e.matches ? 'dark' : 'light');
+    }
+  });
+}
+
+// ---------- 篩選邏輯 ----------
+// 更新目前篩選並重新 render
+function setFilter(filter){
+  currentFilter = filter;
+  // 更新按鈕樣式
+  filterBtns.forEach(b => b.classList.toggle('active', b.dataset.filter === filter));
+  render();
+}
+
+// 綁定篩選按鈕事件
+filterBtns.forEach(btn => {
+  btn.addEventListener('click', () => setFilter(btn.dataset.filter));
+});
+
 // 快捷鍵：Enter 新增
 todoInput.addEventListener('keydown', (e) => {
   if(e.key === 'Enter'){
@@ -153,5 +252,6 @@ todoInput.addEventListener('keydown', (e) => {
 addBtn.addEventListener('click', addTodoFromInput);
 clearAllBtn.addEventListener('click', clearCompleted);
 
-// 初始渲染
+// 初始化：套用主題並渲染
+applyThemeFromStorage();
 render();
