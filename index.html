@@ -1,0 +1,33 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>待辦清單</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <main class="container">
+    <section class="card">
+      <h1 class="title">待辦清單</h1>
+
+      <form id="todo-form" class="input-row" onsubmit="return false;">
+        <input id="todo-input" type="text" placeholder="輸入待辦事項..." autocomplete="off">
+        <button id="add-btn" type="button">新增</button>
+      </form>
+
+      <div id="list-wrap">
+        <ul id="todo-list" class="todo-list"></ul>
+        <p id="empty-tip" class="empty">還沒有任何待辦事項，新增一個吧!</p>
+      </div>
+
+      <div class="footer">
+        <span id="incomplete-count">未完成: 0 項</span>
+        <button id="clear-all" class="clear-all" title="刪除全部已完成項目">刪除已完成</button>
+      </div>
+    </section>
+  </main>
+
+  <script src="app.js"></script>
+</body>
+</html>

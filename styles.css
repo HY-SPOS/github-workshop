@@ -1,0 +1,149 @@
+/* 根色彩變數與基本設定 */
+:root{
+  --bg: #f4f7fb;
+  --card-bg: #ffffff;
+  --primary: #4c8bf5;
+  --accent: #6ee7b7;
+  --muted: #9aa4b2;
+  --danger: #ef4444;
+  --text: #111827;
+  --shadow: 0 6px 18px rgba(15,23,42,0.06);
+}
+
+*{box-sizing:border-box}
+html,body{height:100%}
+body{
+  margin:0;
+  font-family: system-ui, -apple-system, "Segoe UI", Roboto, "Noto Sans TC", "Helvetica Neue", Arial;
+  background:linear-gradient(180deg,var(--bg),#eef3fb);
+  color:var(--text);
+  -webkit-font-smoothing:antialiased;
+  -moz-osx-font-smoothing:grayscale;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  padding:24px;
+}
+
+.container{
+  width:100%;
+  max-width:520px;
+}
+
+.card{
+  background:var(--card-bg);
+  border-radius:12px;
+  box-shadow:var(--shadow);
+  padding:20px;
+  display:flex;
+  flex-direction:column;
+}
+
+.title{
+  margin:0 0 12px 0;
+  font-size:1.4rem;
+}
+
+.input-row{
+  display:flex;
+  gap:8px;
+  margin-bottom:12px;
+}
+
+#todo-input{
+  flex:1;
+  padding:10px 12px;
+  border-radius:8px;
+  border:1px solid #e6eef9;
+  font-size:1rem;
+}
+
+#add-btn{
+  background:var(--primary);
+  color:white;
+  border:none;
+  padding:10px 14px;
+  border-radius:8px;
+  cursor:pointer;
+}
+#add-btn:active{transform:translateY(1px)}
+
+#list-wrap{
+  min-height:100px;
+}
+
+.todo-list{
+  list-style:none;
+  margin:0;
+  padding:0;
+  display:flex;
+  flex-direction:column;
+  gap:8px;
+}
+
+.todo-item{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  padding:10px;
+  border-radius:8px;
+  background:linear-gradient(180deg,#fff,#fbfdff);
+  border:1px solid #f1f6fb;
+}
+
+.todo-left{
+  display:flex;
+  align-items:center;
+  gap:10px;
+  flex:1;
+}
+
+.todo-text{
+  word-break:break-word;
+}
+
+.todo-text.completed{
+  text-decoration:line-through;
+  color:var(--muted);
+  opacity:0.7;
+}
+
+.icon-btn{
+  background:transparent;
+  border:none;
+  color:var(--danger);
+  cursor:pointer;
+  padding:6px 8px;
+  border-radius:6px;
+}
+
+.footer{
+  margin-top:14px;
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  color:var(--muted);
+  font-size:0.95rem;
+}
+
+.empty{
+  color:var(--muted);
+  text-align:center;
+  padding:18px 10px;
+}
+
+.clear-all{
+  background:transparent;
+  border:1px solid #fdecea;
+  color:var(--danger);
+  padding:6px 10px;
+  border-radius:8px;
+  cursor:pointer;
+}
+
+/* RWD：手機上微調 */
+@media (max-width:420px){
+  .card{padding:14px}
+  .title{font-size:1.2rem}
+  #add-btn{padding:9px 10px}
+}
