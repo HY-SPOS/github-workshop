@@ -14,6 +14,7 @@ const todoListEl = document.getElementById('todo-list');
 const emptyTip = document.getElementById('empty-tip');
 const incompleteCountEl = document.getElementById('incomplete-count');
 const clearAllBtn = document.getElementById('clear-all');
+const clearCompletedBtn = document.getElementById('clear-completed');
 const themeToggleBtn = document.getElementById('theme-toggle');
 const filterBtns = Array.from(document.querySelectorAll('.filter-btn'));
 
@@ -162,7 +163,7 @@ function updateIncompleteCount(){
   incompleteCountEl.textContent = `未完成: ${incomplete} 項`;
 }
 
-// 刪除所有已完成項目
+// 刪除所有已完成項目（會在呼叫前先由呼叫端確認）
 function clearCompleted(){
   let todos = loadTodos();
   const before = todos.length;
@@ -170,6 +171,15 @@ function clearCompleted(){
   if(todos.length === before) return; // 沒有已完成的
   saveTodos(todos);
   render();
+}
+
+// 更新 "清除已完成" 按鈕的可見性或啟用狀態
+function updateClearCompletedButton(){
+  if(!clearCompletedBtn) return;
+  const todos = loadTodos();
+  const hasCompleted = todos.some(t => t.done);
+  // 若沒有已完成項目，將按鈕停用
+  clearCompletedBtn.disabled = !hasCompleted;
 }
 
 // ---------- 主題支援（淺/深色） ----------
@@ -275,9 +285,28 @@ todoInput.addEventListener('keydown', (e) => {
 });
 
 addBtn.addEventListener('click', addTodoFromInput);
-clearAllBtn.addEventListener('click', clearCompleted);
+// 若有舊的 clearAllBtn（已保留但不建議使用），綁定到相同功能
+if(clearAllBtn){
+  clearAllBtn.addEventListener('click', () => {
+    if(confirm('確定要刪除所有已完成的項目嗎？')){
+      clearCompleted();
+    }
+  });
+}
+
+// 綁定新的 clearCompletedBtn 行為
+if(clearCompletedBtn){
+  clearCompletedBtn.addEventListener('click', () => {
+    if(clearCompletedBtn.disabled) return;
+    if(confirm('確定要一次刪除所有已完成的項目？（此操作無法復原）')){
+      clearCompleted();
+    }
+  });
+}
 
 // 初始化：套用主題，載入篩選設定，並渲染
 applyThemeFromStorage();
 applyFilterFromStorage();
 render();
+// 初始化時更新按鈕狀態
+updateClearCompletedButton();
