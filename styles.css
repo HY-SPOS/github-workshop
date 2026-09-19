@@ -180,6 +180,21 @@ body{
   cursor:pointer;
 }
 
+/* 清除已完成按鈕樣式 */
+.clear-completed{
+  background:transparent;
+  border:1px solid transparent;
+  color:var(--danger);
+  padding:6px 10px;
+  border-radius:8px;
+  cursor:pointer;
+}
+
+.clear-completed[disabled]{
+  opacity:0.5;
+  cursor:not-allowed;
+}
+
 /* 深色主題變數（以 .dark-theme 套用整份樣式） */
 :root.dark-theme{
   --bg: #0f1724;
